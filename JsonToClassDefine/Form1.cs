@@ -19,9 +19,23 @@ namespace JsonToClassDefine
 
         private void btnConvert_Click(object sender, EventArgs e)
         {
-            var jsonObj = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(txtJson.Text);
-            List<StringBuilder> classList = new List<StringBuilder>();
             txtClass.Text = "";
+            Newtonsoft.Json.Linq.JObject jsonObj;
+            var jsonToken = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(txtJson.Text);
+            if (jsonToken.Type == Newtonsoft.Json.Linq.JTokenType.Array)
+            {
+                jsonObj = (Newtonsoft.Json.Linq.JObject)((Newtonsoft.Json.Linq.JArray)jsonToken)[0];
+            }
+            else if (jsonToken.Type == Newtonsoft.Json.Linq.JTokenType.Object)
+            {
+                jsonObj = (Newtonsoft.Json.Linq.JObject)jsonToken;
+            }
+            else
+            {
+                return;
+            }
+                List<StringBuilder> classList = new List<StringBuilder>();
+           
             var className = txtClassName.Text;
             if(string.IsNullOrEmpty(className))
             {
@@ -52,14 +66,28 @@ namespace JsonToClassDefine
                 {
                     resultStr.Append("object ");
                 }
+                else if(pro.Value.Type == Newtonsoft.Json.Linq.JTokenType.Object)
+                {
+                    string myName = name[0].ToString().ToUpper() + name.Substring(1);
+                    resultStr.Append(className + "_" + myName + " ");
+                    parseJson((Newtonsoft.Json.Linq.JObject)pro.Value, classList, className + "_" + myName);
+                }
                 else if (pro.Value.Type == Newtonsoft.Json.Linq.JTokenType.Array)
                 {
+                    string otherString = "[]";                   
                     Newtonsoft.Json.Linq.JArray array = (Newtonsoft.Json.Linq.JArray)pro.Value;
-                   if( array.Count > 0 && array[0].Type == Newtonsoft.Json.Linq.JTokenType.Object )
+                    _check:
+                    if (array.Count > 0 && array[0].Type == Newtonsoft.Json.Linq.JTokenType.Object)
                     {
                         string myName = name[0].ToString().ToUpper() + name.Substring(1);
-                        resultStr.Append(className + "_" + myName + "[] ");
+                        resultStr.Append(className + "_" + myName + otherString + " ");
                         parseJson((Newtonsoft.Json.Linq.JObject)array[0], classList, className + "_" + myName);
+                    }
+                    else if (array.Count > 0 && array[0].Type == Newtonsoft.Json.Linq.JTokenType.Array)
+                    {
+                        array = (Newtonsoft.Json.Linq.JArray)array[0];
+                        otherString += "[]";
+                        goto _check;
                     }
                     else
                     {
