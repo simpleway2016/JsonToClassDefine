@@ -143,8 +143,15 @@ namespace JsonToClassDefine
 
         private void btnGetPro_Click(object sender, EventArgs e)
         {
-            var jsonObj = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(txtJson.Text);
-            txtJson.Text = jsonObj.Value<string>(txtPro.Text);
+            try
+            {
+                var jsonObj = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(txtJson.Text);
+                txtJson.Text = jsonObj[txtPro.Text].ToString();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
     }
 }
