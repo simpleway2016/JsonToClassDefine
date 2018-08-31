@@ -21,7 +21,7 @@ namespace JsonToClassDefine
         {
             txtClass.Text = "";
             Newtonsoft.Json.Linq.JObject jsonObj;
-            var jsonToken = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(txtJson.Text);
+            var jsonToken = (Newtonsoft.Json.Linq.JToken)Newtonsoft.Json.JsonConvert.DeserializeObject(getJsonString());
             if (jsonToken.Type == Newtonsoft.Json.Linq.JTokenType.Array)
             {
                 jsonObj = (Newtonsoft.Json.Linq.JObject)((Newtonsoft.Json.Linq.JArray)jsonToken)[0];
@@ -140,12 +140,19 @@ namespace JsonToClassDefine
             }
             resultStr.AppendLine("}");
         }
-
+        string getJsonString()
+        {
+            var str = txtJson.Text;
+            if (str.StartsWith("\""))
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<string>(str);
+            return str;
+        }
         private void btnGetPro_Click(object sender, EventArgs e)
         {
             try
             {
-                var jsonObj = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(txtJson.Text);
+                
+                var jsonObj = (Newtonsoft.Json.Linq.JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(getJsonString());
                 txtJson.Text = jsonObj[txtPro.Text].ToString();
             }
             catch(Exception ex)
